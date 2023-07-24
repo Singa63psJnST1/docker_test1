@@ -1,0 +1,108 @@
+
+
+https://www.runoob.com/docker/docker-tutorial.html
+hub.docker.com
+https://blog.csdn.net/qq_34041723/article/details/116020777
+
+----------------------------  服务
+systemctl status docker
+docker  info
+
+----------------------------  容器
+docker container run -p 80:80 nginx      自动下载nginx镜像，创建容器；前台运行
+需要注意：参数的先后顺序，也是必须的：
+docker container  run -d -p 80:80 nginx  自动下载nginx镜像，创建容器；后台运行
+docker container  run -it ubuntu sh      创建容器，并且进入交互模式；运行后，容器退出
+docker container  run --rm -it ubuntu sh      创建容器，并且进入交互模式；运行后，容器退出，并且自动删除
+
+docker exec -it <容器ID> <命令>    交互方式进入一个已经运行的容器里，执行一个额外的命令
+
+
+docker container ls -a 
+docker container ps -a 
+docker container rm <容器ID>   删除了container之后，image还存在
+
+docker container stop <容器ID>
+
+
+docker container stop $(docker container ps -qa)  停止全部容器
+docker container rm $(docker container ps -aq)    删除全部容器
+
+docker attach  <容器ID>       附加到容器里，可以看到log了，不要这样用
+
+docker top <容器ID>        看看容器内的运行的进程
+
+docker system prune -f     		清除全部的停止运行的容器
+docker image  prune -a     		清除全部的目前没有使用的镜像
+
+
+----------------------------  镜像
+列出本地镜像 
+docker images
+
+docker search redis
+docker pull redis
+docker pull redis:5.0
+docker pull centos:7
+docker pull hello-world
+docker rmi  7614ae9453d1
+docker rmi  -f  `docker images -q`    -- 强制删除全部的image
+docker pull  nginx:1.13
+docker pull  java:8
+
+docker image inspect <image的ID>
+
+----------------------------  容器
+生成容器
+docker run -id --name=c1  centos:7 
+docker run -id --name=c2  redis:5.0
+
+查看容器
+docker ps -a
+docker ps -aq
+docker inspect c2
+进入容器， it进入后退出，不关闭
+docker exec -it c1 <命令>
+关闭容器
+docker stop c2
+删除容器
+docker rm c1
+
+看容器内的日志 
+docker  logs  -f  <容器ID>
+
+停止全部容器
+docker stop $(docker ps -q)
+停止并删除全部容器
+docker stop $(docker ps -q) & docker rm $(docker ps -aq)
+
+------------------------------------------ 重启容器
+---------------  node2
+docker restart $(docker ps | grep hxdqscmall | grep -v  product | grep -v  spike | awk '{ print $1}')
+docker restart 5fda7abd03ef     -- 这是查询得到的 product 服务的 id，第1列的数值
+
+
+
+----------------------------  数据卷
+docker volume ls  列出创建的卷，说明：只能列出放到 /var/lib/docker/volumes 下的卷；不能列出其他地方的卷；
+docker volume inspect <colume的名字>    看看volume在哪里
+docker volume prune     删除全部的volume
+docker volume prune --filter "label!=keep"  仅仅删除label值为keep的存储卷
+
+生成容器，并且挂载数据卷
+docker run -id --name=c2  -v  宿主机目录（文件）:容器目录（文件）  镜像文件 
+docker run -it --name=c1  -v  /root/data:/root/data_container  centos:7 /bin/bash 
+docker exec -it c1  /bin/bash 
+
+docker run -id --name=c2  -v  /root/data:/root/data_container  centos:7 /bin/bash 
+docker exec -it c2  /bin/bash 
+
+----------------------------  数据卷容器
+docker run -it --name=c3  -v  /volume  镜像文件 
+docker run -it --name=c1  --volumes-from c3    centos:7 /bin/bash 
+docker run -it --name=c2  --volumes-from c3    centos:7 /bin/bash 
+
+
+
+
+
